@@ -148,8 +148,8 @@ subroutine read_init_config(this, config_file, bmi_status)
   character (len=*), intent(in) :: config_file
   integer, intent(out) :: bmi_status
   !namelist inputs
-  integer :: num_time_steps, time_step_size
-  double precision :: model_start_time, model_end_time
+  integer :: num_time_steps
+  double precision :: model_start_time, model_end_time, time_step_size
   character(len=1000) :: SCHISM_dir
   !locals
   integer :: rc, fu
@@ -279,6 +279,10 @@ function schism_initialize(this, config_file) result (bmi_status)
 
   if (len(config_file) > 0) then
      call read_init_config(this, config_file, bmi_status)
+     if  (bmi_status == BMI_FAILURE) then
+        return
+     end if
+
      this%model%current_model_time = 0.0
      if ( this%model%num_time_steps == 0 .and. this%model%model_end_time == 0) then
         this%model%num_time_steps = 24
