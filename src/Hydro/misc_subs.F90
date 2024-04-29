@@ -375,8 +375,8 @@
 #else
 !         Init
           windx1=0._rkind; windy1=0._rkind; windx2=0._rkind; windy2=0._rkind
-          pr1=real(1.e5,rkind); pr2=real(1.e5,rkind)
-          airt1=20._rkind; airt2=20._rkind
+          pr1=0._rkind; pr2=0._rkind
+          airt1=0._rkind; airt2=0._rkind
           shum1=0._rkind; shum2=0._rkind
 #endif
 !        endif
@@ -655,17 +655,21 @@
 
 !...  Source/sinks: read by rank 0 first
 #ifdef USE_NWM_BMI
-      ninv=time/th_dt3(1)
-      th_time3(1,1)=ninv*th_dt3(1)
-      th_time3(2,1)=th_time3(1,1)+th_dt3(1)
 
-      ninv=time/th_dt3(2)
-      th_time3(1,2)=ninv*th_dt3(2)
-      th_time3(2,2)=th_time3(1,2)+th_dt3(2)
+      if(nsources>0) then
+        ninv=time/th_dt3(1)
+        th_time3(1,1)=dble(ninv)*th_dt3(1)
+        th_time3(2,1)=th_time3(1,1)+th_dt3(1)
+        ninv=time/th_dt3(3)
+        th_time3(1,3)=dble(ninv)*th_dt3(3)
+        th_time3(2,3)=th_time3(1,3)+th_dt3(3)
+      endif
 
-      ninv=time/th_dt3(3)
-      th_time3(1,3)=ninv*th_dt3(3)
-      th_time3(2,3)=th_time3(1,3)+th_dt3(3)
+      if(nsinks>0) then
+        ninv=time/th_dt3(2)
+        th_time3(1,2)=dble(ninv)*th_dt3(2)
+        th_time3(2,2)=th_time3(1,2)+th_dt3(2)
+      endif
 
       ath3(:,1,1,1:2)=0.d0
       ath3(:,1,1,3)=-9999.d0

@@ -630,12 +630,12 @@
         endif
       endif !ishapiro==1
 
-!      if(ishapiro==2) then
-!        if(shapiro0<0._rkind) then
-!          write(errmsg,*)'Illegal shapiro(2):',shapiro0
-!          call parallel_abort(errmsg)
-!        endif
-!      endif !ishapiro
+      if(ishapiro==2) then
+        if(shapiro0<0._rkind) then
+          write(errmsg,*)'Illegal shapiro(2):',shapiro0
+          call parallel_abort(errmsg)
+        endif
+      endif !ishapiro
 
       if(ishapiro/=0) then
         if(niter_shap<0) then
@@ -1408,7 +1408,7 @@
          &  pr2(npa),airt2(npa),shum2(npa),pr(npa),sflux(npa),srad(npa),tauxz(npa),tauyz(npa), &
          &  fluxsu(npa),fluxlu(npa),hradu(npa),hradd(npa),cori(nsa),Cd(nsa), &
          &  Cdp(npa),rmanning(npa),rough_p(npa),dfv(nvrt,npa),elev_nudge(npa),uv_nudge(npa), &
-         & hdif(nvrt,npa),shapiro(nsa),shapiro_smag(nsa),fluxprc(npa),fluxevp(npa),prec_snow(npa),prec_rain(npa), & 
+         & hdif(nvrt,npa),shapiro(nsa),fluxprc(npa),fluxevp(npa),prec_snow(npa),prec_rain(npa), & 
          &  sparsem(0:mnei_p,np), & !sparsem for non-ghosts only
          &  tr_nudge(natrm,npa), & 
          &  fun_lat(0:2,npa),dav(2,npa),elevmax(npa),dav_max(2,npa),dav_maxmag(npa), &
@@ -2768,6 +2768,75 @@
 
       endif !ihydraulics/=0
 
+! To ingest the proper T-Route nexus ids linked to the
+! sources and sinks that intersect the SCHISM inland
+! boundaries, we will use a modified source_sink.in file
+! containing that information here
+#ifdef USE_NWM_BMI
+!     Read in source/sink info
+      if(if_source==1) then !ASCII
+        if(myrank==0) then
+          open(31,file=in_dir(1:len_in_dir)//'source_sink_BMI.in',status='old')
+          read(31,*)nsources_ngen
+          ! Keep source_sink.in file format the same, but just force
+          ! all elements in the  mesh to be sources for potential
+          ! forecasted precipitation sources in the future
+          nsources = ne_global
+        endif !myrank
+        call mpi_bcast(nsources_ngen,1,itype,0,comm,istat)
+        call mpi_bcast(nsources,1,itype,0,comm,istat)
+
+        if(iorder==0) then
+          allocate(ieg_source_ngen(max(1,nsources_ngen)),stat=istat)
+          allocate(ieg_source_flowpath_ids(max(1,nsources_ngen)),stat=istat)
+          allocate(ieg_source(max(1,nsources)),stat=istat)
+          if(istat/=0) call parallel_abort('INIT: ieg_source failure')
+        endif
+
+        if(myrank==0) then
+          ! Assign element ids for T-Route linking to inland boundary inflows
+          do i=1,nsources_ngen
+            read(31,*)ieg_source_ngen(i), ieg_source_flowpath_ids(i) !global elem.for T-Route coupling only along with T-Route's flowpath id in NextGen
+          enddo !i
+          ! Assign all element ids universal to the SCHISM mesh based on global number of elements
+          do i=1, nsources
+              ieg_source(i) = i
+          enddo
+          ! Now read the number of sinks in the source_sink_BMI.in file
+          read(31,*) !blank line
+          read(31,*)nsinks
+        endif !myrank
+        call mpi_bcast(ieg_source_ngen,max(1,nsources_ngen),itype,0,comm,istat)
+        call mpi_bcast(ieg_source,max(1,nsources),itype,0,comm,istat)
+        call mpi_bcast(ieg_source_flowpath_ids,max(1,nsources),itype,0,comm,istat)
+        call mpi_bcast(nsinks,1,itype,0,comm,istat)
+
+        ! Now define the time step interval for sources and sinks here
+        ! where it will be currently set to only update every hour for
+        ! sources and sinks within the NextGen framework
+        th_dt3(:)=dble(3600.0)
+        call mpi_bcast(th_dt3,nthfiles3,rtype,0,comm,istat)
+
+        if(iorder==0) then
+          allocate(ieg_sink(max(1,nsinks)),ath3(max(1,nsources,nsinks),ntracers,2,nthfiles3),ieg_sink_flowpath_ids(max(1,nsinks)),stat=istat)
+          if(istat/=0) call parallel_abort('INIT: ieg_sink failure')
+        endif
+
+        if(myrank==0) then
+          if(nsinks > 0) then
+            do i=1,nsinks
+              read(31,*)ieg_sink(i), ieg_sink_flowpath_ids(i)
+            enddo !i
+            close(31)
+          else
+            ieg_sink(1) = 0
+            ieg_sink_flowpath_ids(1) = 0
+            close(31)
+          endif
+        endif !myrank
+        call mpi_bcast(ieg_sink,max(1,nsinks),itype,0,comm,istat)
+      endif !if_source
+#else
 !     Read in source/sink info 
       if(if_source==1) then !ASCII
         if(myrank==0) then
@@ -2804,6 +2873,7 @@
         endif !myrank
         call mpi_bcast(ieg_sink,max(1,nsinks),itype,0,comm,istat)
       endif !if_source
+#endif /*USE_NWM_BMI*/
 
       if(if_source==-1) then !nc
         if(myrank==0) then
@@ -2938,7 +3008,7 @@
 !...  Set shapiro(:). For ishapiro=2, this will be done in _step
       if(ishapiro==1) then
         shapiro(:)=shapiro0
-      else if(ishapiro==-1.or.ishapiro==2) then
+      else if(ishapiro==-1) then
         if(myrank==0) then
           open(32,file=in_dir(1:len_in_dir)//'shapiro.gr3',status='old')
           read(32,*)
@@ -2957,13 +3027,9 @@
         enddo !i
       
         do i=1,nsa
-          if(ishapiro==-1) then
-            shapiro(i)=sum(swild(isidenode(1:2,i)))/2.d0
-            if(shapiro(i)<0.d0.or.shapiro(i)>0.5d0) call parallel_abort('INIT: check shapiro')
-          else !=2
-            shapiro_smag(i)=sum(swild(isidenode(1:2,i)))/2.d0
-            if(shapiro_smag(i)<0.d0) call parallel_abort('INIT: check shapiro(2)')
-          endif
+          shapiro(i)=sum(swild(isidenode(1:2,i)))/2.d0
+          !Check range
+          if(shapiro(i)<0.d0.or.shapiro(i)>0.5d0) call parallel_abort('INIT: check shapiro')
 !'
         enddo !i
 !      else if(ishapiro==2) then 
@@ -2994,7 +3060,7 @@
 !            if(ipgl(i)%rank==myrank) shapiro_min(ipgl(i)%id)=buf3(i) !tmp
 !          enddo !i
 !        endif !lexist
-      endif !ishapiro
+      endif !ishapiro==-1
 
 !...  Horizontal diffusivity option
 !     ihdif=0 means all hdif=0 and no hdif.gr3 is needed
