@@ -1168,301 +1168,72 @@ end function schism_finalizer
 
     select case(name)
     case("ETA2_bnd_t0")
-      if(SUM(ath2(1,1,:,1,1)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! after model initialization phase
         ath2(1,1,:,1,1) = src(:)
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-        bmi_status = BMI_FAILURE
-      endif
     case("ETA2_bnd_t1")
-      if(SUM(ath2(1,1,:,2,1)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since 
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        ath2(1,1,:,2,1) = src(:)
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         ath2(1,1,:,1,1) = ath2(1,1,:,2,1)
         ath2(1,1,:,2,1) = src(:)
         bmi_status=BMI_SUCCESS
-      endif
     case("Q_bnd_source_t0")
-      if(SUM(ath3(:,1,1,1)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! after model initialization phase
         ath3(ieg_source_ngen(:),1,1,1) = src(:)
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-        bmi_status = BMI_FAILURE
-      endif
     case("Q_bnd_source_t1")
-      if(SUM(ath3(:,1,2,1)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        ath3(ieg_source_ngen(:),1,2,1) = src(:)
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         ath3(ieg_source_ngen(:),1,1,1) = ath3(ieg_source_ngen(:),1,2,1)
         ath3(ieg_source_ngen(:),1,2,1) = src(:)
         bmi_status=BMI_SUCCESS
-      endif
     case("Q_bnd_sink_t0")
-      if(SUM(ath3(:,1,1,2)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! after model initialization phase
         ath3(:,1,1,2) = src(:)
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-        bmi_status = BMI_FAILURE
-      endif
     case("Q_bnd_sink_t1")
-      if(SUM(ath3(:,1,2,2)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        ath3(:,1,2,2) = src(:)
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         ath3(:,1,1,2) = ath3(:,1,2,2)
         ath3(:,1,2,2) = src(:)
         bmi_status=BMI_SUCCESS
-      endif
     case("SFCPRS_t0")
-      if(SUM(pr1) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! after model initialization phase
         pr1(:) = src(:)
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-        bmi_status = BMI_FAILURE
-      endif
     case("SFCPRS_t1")
-      if(SUM(pr2) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        pr2(:) = src(:)
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         pr1(:) = pr2(:)
         pr2(:) = src(:)
         bmi_status=BMI_SUCCESS
-      endif
     case("TMP2m_t0")
-      if(SUM(airt1) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! after model initialization phase
         airt1(:) = src(:)
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-        bmi_status = BMI_FAILURE
-      endif
     case("TMP2m_t1")
-      if(SUM(airt2) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        airt2(:) = src(:)
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         airt1(:) = airt2(:)
         airt2(:) = src(:)
         bmi_status=BMI_SUCCESS
-      endif
     case("RAINRATE_t0")
-      if(SUM(ath3(:,1,2,1)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
         ! Convert rainrate data to discharge flux
         ath3(:,1,1,1) = ath3(:,1,1,1) + (src(:) * area(:)/1000.0)
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-	! and in this case, Q_bnd is called first
-	! and therefore updates the source term
-	! first instead of here
-        bmi_status = BMI_FAILURE
-      endif
     case("RAINRATE_t1")
-      ! Since Q_bnd is called first to set the source
-      ! term, we only just need to update the "t1"
-      ! source term and add the rain flux contribution
-      ! Convert rainrate data to discharge flux
-      ath3(:,1,2,1) = ath3(:,1,2,1) + (src(:) * area(:)/1000.0)
-      bmi_status=BMI_SUCCESS
+        ! Since Q_bnd is called first to set the source
+        ! term, we only just need to update the "t1"
+        ! source term and add the rain flux contribution
+        ! Convert rainrate data to discharge flux
+        ath3(:,1,2,1) = ath3(:,1,2,1) + (src(:) * area(:)/1000.0)
+        bmi_status=BMI_SUCCESS
     case("UU10m_t0")
-      if(SUM(windx1) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
         windx1(:) = src(:)
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-	! and in this case, Q_bnd is called first
-	! and therefore updates the source term
-	! first instead of here
-        bmi_status = BMI_FAILURE
-      endif
     case("UU10m_t1")
-      if(SUM(windx2) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        windx2(:) = src(:)
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         windx1(:) = windx2(:)
         windx2(:) = src(:)
         bmi_status=BMI_SUCCESS
-      endif
     case("VV10m_t0")
-      if(SUM(windy1) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
         windy1(:) = src(:)
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-	! and in this case, Q_bnd is called first
-	! and therefore updates the source term
-	! first instead of here
-        bmi_status = BMI_FAILURE
-      endif
     case("VV10m_t1")
-      if(SUM(windy2) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        windy2(:) = src(:)
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         windy1(:) = windy2(:)
         windy2(:) = src(:)
         bmi_status=BMI_SUCCESS
-      endif
     case("SPFH2m_t0")
-      if(SUM(shum1) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
         shum1(:) = src(:)
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-	! and in this case, Q_bnd is called first
-	! and therefore updates the source term
-	! first instead of here
-        bmi_status = BMI_FAILURE
-      endif
     case("SPFH2m_t1")
-      if(SUM(shum2) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        shum2(:) = src(:)
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         shum1(:) = shum2(:)
         shum2(:) = src(:)
         bmi_status=BMI_SUCCESS
-      endif
     case default
        bmi_status = BMI_FAILURE
     end select
@@ -1520,212 +1291,66 @@ end function schism_finalizer
 
     select case(name)
     case("ETA2_bnd_t0")
-      if(SUM(ath2(1,1,:,1,1)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! after model initialization phase
         do i = 1, size(inds)
             ath2(1,1,inds(i),1,1) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-        bmi_status = BMI_FAILURE
-      endif
     case("ETA2_bnd_t1")
-      if(SUM(ath2(1,1,:,2,1)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since 
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        do i = 1, size(inds)
-            ath2(1,1,inds(i),2,1) = src(i)
-        enddo
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         do i = 1, size(inds)
 	    ath2(1,1,inds(i),1,1) = ath2(1,1,inds(i),2,1)
             ath2(1,1,inds(i),2,1) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      endif
     case("Q_bnd_source_t0")
-      if(SUM(ath3(:,1,1,1)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! after model initialization phase
         do i = 1, size(inds)
             ath3(inds(i),1,1,1) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-        bmi_status = BMI_FAILURE
-      endif
     case("Q_bnd_source_t1")
-      if(SUM(ath3(:,1,2,1)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        do i = 1, size(inds)
-            ath3(inds(i),1,2,1) = src(i)
-        enddo
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         do i = 1, size(inds)
 	    ath3(inds(i),1,1,1) = ath3(inds(i),1,2,1)
             ath3(inds(i),1,2,1) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      endif
     case("Q_bnd_sink_t0")
-      if(SUM(ath3(:,1,1,2)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! after model initialization phase
         do i = 1, size(inds)
             ath3(inds(i),1,1,2) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-        bmi_status = BMI_FAILURE
-      endif
     case("Q_bnd_sink_t1")
-      if(SUM(ath3(:,1,2,2)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        do i = 1, size(inds)
-            ath3(inds(i),1,2,2) = src(i)
-        enddo
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         do i = 1, size(inds)
             ath3(inds(i),1,1,2) = ath3(inds(i),1,2,2)
             ath3(inds(i),1,2,2) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      endif
     case("SFCPRS_t0")
-      if(SUM(pr1) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! after model initialization phase
         do i = 1, size(inds)
             pr1(inds(i)) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-        bmi_status = BMI_FAILURE
-      endif
     case("SFCPRS_t1")
-      if(SUM(pr2) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        do i = 1, size(inds)
-            pr2(inds(i)) = src(i)
-        enddo
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         do i = 1, size(inds)
 	    pr1(inds(i)) = pr2(inds(i))
             pr2(inds(i)) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      endif
     case("TMP2m_t0")
-      if(SUM(airt1) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! after model initialization phase
         do i = 1, size(inds)
             airt1(inds(i)) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-        bmi_status = BMI_FAILURE
-      endif
     case("TMP2m_t1")
-      if(SUM(airt2) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        do i = 1, size(inds)
-            airt2(inds(i)) = src(i)
-        enddo
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         do i = 1, size(inds)
 	    airt1(inds(i)) = airt2(inds(i))
             airt2(inds(i)) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      endif
     case("RAINRATE_t0")
-      if(SUM(ath3(:,1,2,1)) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
         ! Convert rainrate data to discharge flux
         do i = 1, size(inds)
             ath3(inds(i),1,1,1) = ath3(inds(i),1,1,1) + (src(i) * area(inds(i))/1000.0)
         enddo
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-	! and in this case, Q_bnd is called first
-	! and therefore updates the source term
-	! first instead of here
-        bmi_status = BMI_FAILURE
-      endif
     case("RAINRATE_t1")
       ! Since Q_bnd is called first to set the source
       ! term, we only just need to update the "t1"
@@ -1736,138 +1361,38 @@ end function schism_finalizer
       enddo
       bmi_status=BMI_SUCCESS
     case("UU10m_t0")
-      if(SUM(windx1) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
         do i = 1, size(inds)
             windx1(inds(i)) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-	! and in this case, Q_bnd is called first
-	! and therefore updates the source term
-	! first instead of here
-        bmi_status = BMI_FAILURE
-      endif
     case("UU10m_t1")
-      if(SUM(windx2) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        do i = 1, size(inds)
-            windx2(inds(i)) = src(i)
-        enddo
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         do i = 1, size(inds)
 	    windx1(inds(i)) = windx2(inds(i))
             windx2(inds(i)) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      endif
     case("VV10m_t0")
-      if(SUM(windy1) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
         do i = 1, size(inds)
             windy1(inds(i)) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-	! and in this case, Q_bnd is called first
-	! and therefore updates the source term
-	! first instead of here
-        bmi_status = BMI_FAILURE
-      endif
-      bmi_status=BMI_SUCCESS
     case("VV10m_t1")
-      if(SUM(windy2) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        do i = 1, size(inds)
-            windy2(inds(i)) = src(i)
-        enddo
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         do i = 1, size(inds)
 	    windy1(inds(i)) = windy2(inds(i))
             windy2(inds(i)) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      endif
     case("SPFH2m_t0")
-      if(SUM(shum1) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
         do i = 1, size(inds)
             shum1(inds(i)) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      else
-        ! Return BMI failure and dont allow
-        ! model engine to set "t0" data since
-        ! thi will be done when we update "t1"
-	! and in this case, Q_bnd is called first
-	! and therefore updates the source term
-	! first instead of here
-        bmi_status = BMI_FAILURE
-      endif
     case("SPFH2m_t1")
-      if(SUM(shum2) .eq. 0.0) then
-        ! Allow model engine to set data
-        ! for first model iteration
-        ! but do not update "t0" here since
-        ! this was completed by the model
-        ! engine during the model initializaion
-        ! phase where "t0" was forced by hot start
-        do i = 1, size(inds)
-            shum2(inds(i)) = src(i)
-        enddo
-        bmi_status=BMI_SUCCESS
-      else
-        ! Since this is now after first model iteration
-        ! we will now update "t0" from the initial value
-        ! of "t1" and then update "t1" from the following
-        ! values given by the model engine coupler
         do i = 1, size(inds)
 	    shum1(inds(i)) = shum2(inds(i))
             shum2(inds(i)) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
-      endif
     case default
        bmi_status = BMI_FAILURE
     end select
