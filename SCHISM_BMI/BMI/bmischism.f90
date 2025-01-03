@@ -1246,8 +1246,6 @@ end function schism_finalizer
     integer, intent(in) :: inds(:)
     integer, intent(in) :: src(:)
     integer :: bmi_status
-    type (c_ptr) dest
-    integer, pointer :: dest_flattened(:)
     integer :: i
 
     select case(name)
@@ -1264,8 +1262,6 @@ end function schism_finalizer
     integer, intent(in) :: inds(:)
     real, intent(in) :: src(:)
     integer :: bmi_status
-    type (c_ptr) dest
-    real, pointer :: dest_flattened(:)
     integer :: i
 
     select case(name)
@@ -1282,12 +1278,7 @@ end function schism_finalizer
     integer, intent(in) :: inds(:)
     double precision, intent(in) :: src(:)
     integer :: bmi_status
-    type (c_ptr) dest
-    double precision, pointer :: dest_flattened(:)
     integer :: i
-
-    !dest = c_loc(this%model%temperature(1,1))
-    !c_f_pointer(dest, dest_flattened, [this%model%n_y * this%model%n_x])
 
     select case(name)
     case("ETA2_bnd_t0")
