@@ -1175,18 +1175,18 @@ end function schism_finalizer
         ath2(1,1,:,2,1) = src(:)
         bmi_status=BMI_SUCCESS
     case("Q_bnd_source_t0")
-        ath3(ieg_source_ngen(1:nsources_ngen),1,1,1) = src(:)
+        ath3(ieg_source_ngen(1:nsources_ngen),1,1,1) = src(1:nsources_ngen)
         bmi_status=BMI_SUCCESS
     case("Q_bnd_source_t1")
         ath3(ieg_source_ngen(1:nsources_ngen),1,1,1) = ath3(ieg_source_ngen(1:nsources_ngen),1,2,1)
         ath3(ieg_source_ngen(1:nsources_ngen),1,2,1) = src(1:nsources_ngen)
         bmi_status=BMI_SUCCESS
     case("Q_bnd_sink_t0")
-        ath3(:,1,1,2) = src(:)
+        ath3(ieg_sink(1:nsinks),1,1,2) = src(1:nsinks)
         bmi_status=BMI_SUCCESS
     case("Q_bnd_sink_t1")
-        ath3(:,1,1,2) = ath3(:,1,2,2)
-        ath3(:,1,2,2) = src(:)
+        ath3(ieg_sink(1:nsinks),1,1,2) = ath3(ieg_sink(1:nsinks),1,2,2)
+        ath3(ieg_sink(1:nsinks),1,2,2) = src(1:nsinks)
         bmi_status=BMI_SUCCESS
     case("SFCPRS_t0")
         pr1(:) = src(:)
@@ -1303,24 +1303,24 @@ end function schism_finalizer
         bmi_status=BMI_SUCCESS
     case("Q_bnd_source_t0")
         do i = 1, size(inds)
-            ath3(inds(i),1,1,1) = src(i)
+            ath3(ieg_source_ngen(inds(i)),1,1,1) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
     case("Q_bnd_source_t1")
         do i = 1, size(inds)
-	    ath3(inds(i),1,1,1) = ath3(inds(i),1,2,1)
-            ath3(inds(i),1,2,1) = src(i)
+            ath3(ieg_source_ngen(inds(i)),1,1,1) = ath3(ieg_source_ngen(inds(i)),1,2,1)
+            ath3(ieg_source_ngen(inds(i)),1,2,1) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
     case("Q_bnd_sink_t0")
         do i = 1, size(inds)
-            ath3(inds(i),1,1,2) = src(i)
+            ath3(ieg_sink(inds(i)),1,1,2) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
     case("Q_bnd_sink_t1")
         do i = 1, size(inds)
-            ath3(inds(i),1,1,2) = ath3(inds(i),1,2,2)
-            ath3(inds(i),1,2,2) = src(i)
+            ath3(ieg_sink(inds(i)),1,1,2) = ath3(ieg_sink(inds(i)),1,2,2)
+            ath3(ieg_sink(inds(i)),1,2,2) = src(i)
         enddo
         bmi_status=BMI_SUCCESS
     case("SFCPRS_t0")
