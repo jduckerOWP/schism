@@ -341,7 +341,7 @@ function schism_initialize(this, config_file) result (bmi_status)
      call parallel_init(this%model%given_communicator)
 
      ! Call SCHISM init function to initalize the model
-     ! configurations that is specified in the param.nl
+     ! configurations that is specified in the param.nml
      ! file in the SCHISM directory
      call schism_init(0, trim(this%model%SCHISM_dir), iths, ntime)
 
@@ -647,7 +647,7 @@ end function schism_finalizer
       do j=1, nea
         grid_x(j) = sum(xlon(elnode(1:i34(j),j)))/real(i34(j),rkind)*180.d0/pi
       enddo
-      ! Assigne global element centroid coordinates
+      ! Assign global element centroid coordinates
       x(:) = grid_x(:)
       bmi_status = BMI_SUCCESS
     case(SCHISM_BMI_GRID_OFFSHORE_BOUNDARY_POINTS)
