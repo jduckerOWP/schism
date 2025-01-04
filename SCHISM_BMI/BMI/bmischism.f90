@@ -537,7 +537,7 @@ end function schism_finalizer
        size = npa!np_global
        bmi_status = BMI_SUCCESS
     case(SCHISM_BMI_GRID_ALL_ELEMENTS)
-       size = nsources
+       size = ne_global
        bmi_status = BMI_SUCCESS
     case(SCHISM_BMI_GRID_OFFSHORE_BOUNDARY_POINTS)
        size = nnode_et
