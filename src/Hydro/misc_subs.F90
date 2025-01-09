@@ -375,8 +375,8 @@
 #else
 !         Init
           windx1=0._rkind; windy1=0._rkind; windx2=0._rkind; windy2=0._rkind
-          pr1=0._rkind; pr2=0._rkind
-          airt1=0._rkind; airt2=0._rkind
+          pr1=real(1.e5,rkind); pr2=real(1.e5,rkind)
+          airt1=20._rkind; airt2=20._rkind
           shum1=0._rkind; shum2=0._rkind
 #endif
 !        endif
