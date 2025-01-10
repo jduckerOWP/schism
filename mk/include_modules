@@ -16,8 +16,8 @@
 # USE_ATMOS = yes
 # EXEC := $(EXEC)_EVAP
 
-# Use NWM BMI for source and some b.c.
-# USE_NWM_BMI = yes
+# Build a library that can be used from BMI, with sources and some b.c. provided by BMI
+# USE_BMI = yes
 # EXEC := $(EXEC)_EVAP
 
 # Precip/evaporation model
