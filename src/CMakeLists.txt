@@ -52,17 +52,17 @@ add_compile_options(${C_PREPROCESS_FLAG})
 
 ######### Algorithmic switches and build options involving functionality
 
-define_opt(BUILD_SHARED_LIBS "Shared libraries" ON)
-
 message(STATUS "\n### Processing algorithmic switches and build options involving functionality for main project")
+
+# Defined early in the list to allow use as a default for others
+define_opt(USE_NWM_BMI "Use NWM BMI for source and some b.c." OFF)
 
 define_opt(NO_PARMETIS "Disable ParMETIS" OFF)
 define_opt(DEBUG "Enable diagnostics (slow and not suitable for production simulations" OFF)
 define_opt(USE_ANALYSIS "Triggers detailed calculations and output options" OFF)
 define_opt(INCLUDE_TIMING "Add timing profile instrumentation to simulation" OFF)
-define_opt(OLDIO "Old nc output option" OFF)
-define_opt(USE_ATMOS "Atmospheric model output option" OFF)
-define_opt(USE_NWM_BMI "Use NWM BMI for source and some b.c." OFF)
+define_opt(OLDIO "Old nc output option" NOT USE_NWM_BMI)
+define_opt(USE_ATMOS "Atmospheric model output option" NOT USE_NWM_BMI)
 define_opt(PREC_EVAP "Use  precipitation/evaporation option" OFF)
 define_opt(IMPOSE_NET_FLUX "Specify net heat and salt fluxes in sflux" OFF)
 define_opt(USE_BULK_FAIRALL "Enable Fairall scheme" OFF)
@@ -77,6 +77,7 @@ define_opt(USE_AGE "Enable age tracer module" OFF)
 define_opt(ICM_PH "Enable pH module in ICM" OFF)
 define_opt(USE_DVD "Enable DVD module" OFF)
 
+define_opt(BUILD_SHARED_LIBS "Shared libraries" USE_NWM_BMI)
 
 
 if(NOT DEFINED TVD_LIM)
