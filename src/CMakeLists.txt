@@ -357,6 +357,10 @@ foreach (moddir ${schismmoddirs} "Driver")
 endforeach()
 
 
+######## BMI Implementation Module #######
+if (USE_BMI)
+  add_subdirectory(BMI)
+endif(USE_BMI)
 
 ######## Utilities ########
 message(STATUS "\n### Configuring Utilities")
