@@ -140,6 +140,7 @@
       real(rkind), allocatable :: swild4(:,:) !double precision for hotstart.in (only)
       real(rkind), allocatable :: swild99(:,:),swild98(:,:,:) !used for exchange etc (deallocate immediately afterwards)
       real(rkind), allocatable :: buf3(:),buf4(:)
+      real(rkind), allocatable :: tr_el_tmp(:,:,:), tr_nd_tmp(:,:,:), tr_nd0_tmp(:,:,:)
 !      real(4), allocatable :: swild9(:,:) !used in tracer nudging
 
 
@@ -1423,6 +1424,7 @@
 
 !     Tracers
       allocate(tr_el(ntracers,nvrt,nea2),tr_nd0(ntracers,nvrt,npa),tr_nd(ntracers,nvrt,npa),stat=istat)
+      allocate(tr_el_tmp(nvrt,ntracers,ne_global),tr_nd0_tmp(nvrt,ntracers,np_global),tr_nd_tmp(nvrt,ntracers,np_global),stat=istat)
       if(istat/=0) call parallel_abort('INIT: other allocation failure')
       allocate(trnd_nu1(ntracers,nvrt,npa),trnd_nu2(ntracers,nvrt,npa),trnd_nu(ntracers,nvrt,npa),stat=itmp)
       if(itmp/=0) call parallel_abort('INIT: alloc failed (56)')
@@ -5349,9 +5351,12 @@
       if(ihot/=0) then
         if(istat/=0) call parallel_abort('Init: alloc(9.1)')
 
-        !All ranks open .nc but rank 0 reads most of data 
-        j=nf90_open(in_dir(1:len_in_dir)//'hotstart.nc',OR(NF90_NETCDF4,NF90_NOWRITE),ncid2)
-        if(j/=NF90_NOERR) call parallel_abort('init: hotstart.nc not found')
+        if(myrank==0) then
+          !All ranks open .nc but rank 0 reads most of data 
+          j=nf90_open(in_dir(1:len_in_dir)//'hotstart.nc',OR(NF90_NETCDF4,NF90_NOWRITE),ncid2)
+          if(j/=NF90_NOERR) call parallel_abort('init: hotstart.nc not found')
+        endif
+
 
         if(myrank==0) then
           !Sanity check dims
@@ -5432,16 +5437,25 @@
           enddo !i
         enddo !k
 
-        !Error: this could be a bottleneck
-        j=nf90_inq_varid(ncid2, "tr_el",mm)
-        if(j/=NF90_NOERR) call parallel_abort('init: nc tr_el')
+        if(myrank==0) then
+          !Error: this could be a bottleneck
+          j=nf90_inq_varid(ncid2, "tr_el",mm)
+          if(j/=NF90_NOERR) call parallel_abort('init: nc tr_el')
+          j=nf90_get_var(ncid2,mm,tr_el_tmp)
+          if(j/=NF90_NOERR) call parallel_abort('init: nc tr_el2')
+        endif
+
+
+        call mpi_bcast(tr_el_tmp,nvrt*ntracers*ne_global,rtype,0,comm,istat)
+
         do i=1,ne_global
           if(iegl(i)%rank==myrank) then
             ie=iegl(i)%id
-            j=nf90_get_var(ncid2,mm,tr_el(:,:,ie),(/1,1,i/),(/ntracers,nvrt,1/))
-            if(j/=NF90_NOERR) call parallel_abort('init: nc tr_el2')
+            tr_el(:,:,ie) = tr_el_tmp(:,:,i)
           endif
         enddo
+        deallocate(tr_el_tmp)
+
 
 
         !Debug: dump
@@ -5520,31 +5534,46 @@
 
         ! Node data
         !Error: this could be a bottlenceck
-        j=nf90_inq_varid(ncid2, "tr_nd",mm)
-        if(j/=NF90_NOERR) call parallel_abort('init: nc tr_nd')
+        if(myrank==0) then
+          ! Node data
+          !Error: this could be a bottlenceck
+          j=nf90_inq_varid(ncid2, "tr_nd",mm)
+          if(j/=NF90_NOERR) call parallel_abort('init: nc tr_nd')
+          j=nf90_get_var(ncid2,mm,tr_nd_tmp)
+          if(j/=NF90_NOERR) call parallel_abort('init: nc tr_nd2')
+        endif
+
+          call mpi_bcast(tr_nd_tmp,nvrt*ntracers*np_global,rtype,0,comm,istat)
+
         do i=1,np_global
           if(ipgl(i)%rank==myrank) then
             ip=ipgl(i)%id
-            j=nf90_get_var(ncid2,mm,tr_nd(:,:,ip),(/1,1,i/),(/ntracers,nvrt,1/))
-            if(j/=NF90_NOERR) call parallel_abort('init: nc tr_nd2')
+            tr_nd(:,:,ip) = tr_nd_tmp(:,:,i)
           endif
         enddo
+        deallocate(tr_nd_tmp)
 
         !Debug: dump
 !        if(myrank==0) then
 !          write(88,*)'Node data:'
 !          write(88,*)swild98(:,:,1:np_global)
 !        endif
+        if(myrank==0) then
+          j=nf90_inq_varid(ncid2, "tr_nd0",mm)
+          if(j/=NF90_NOERR) call parallel_abort('init: nc tr_nd0')
+          j=nf90_get_var(ncid2,mm,tr_nd0_tmp)
+          if(j/=NF90_NOERR) call parallel_abort('init: nc tr_nd0b')
+        endif
 
-        j=nf90_inq_varid(ncid2, "tr_nd0",mm)
-        if(j/=NF90_NOERR) call parallel_abort('init: nc tr_nd0')
+         call mpi_bcast(tr_nd0_tmp,nvrt*ntracers*np_global,rtype,0,comm,istat)
+
         do i=1,np_global
           if(ipgl(i)%rank==myrank) then
             ip=ipgl(i)%id
-            j=nf90_get_var(ncid2,mm,tr_nd0(:,:,ip),(/1,1,i/),(/ntracers,nvrt,1/))
-            if(j/=NF90_NOERR) call parallel_abort('init: nc tr_nd0b')
+            tr_nd0(:,:,ip) = tr_nd0_tmp(:,:,i)
           endif
         enddo
+        deallocate(tr_nd0_tmp)
 
         !Debug: dump
 !        if(myrank==0) then
@@ -6089,8 +6118,10 @@
         if(ihot==2) call parallel_abort('init: hot option for HA diabled')
 #endif /*USE_HA*/
 
-        j=nf90_close(ncid2)
-        if(j/=NF90_NOERR) call parallel_abort('init: nc close')
+        if(myrank==0) then
+          j=nf90_close(ncid2)
+          if(j/=NF90_NOERR) call parallel_abort('init: nc close')
+        endif
 
 #ifdef USE_FABM
         call fabm_schism_read_horizontal_state_from_netcdf('fabm_schism_hotstart.nc',time=time)
