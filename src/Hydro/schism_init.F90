@@ -5353,7 +5353,7 @@
 
         if(myrank==0) then
           !All ranks open .nc but rank 0 reads most of data 
-          j=nf90_open(in_dir(1:len_in_dir)//'hotstart.nc',OR(NF90_NOWRITE),ncid2)
+          j=nf90_open(in_dir(1:len_in_dir)//'hotstart.nc',NF90_NOWRITE,ncid2)
           if(j/=NF90_NOERR) call parallel_abort('init: hotstart.nc not found')
         endif
 
