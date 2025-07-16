@@ -1424,7 +1424,7 @@
 
 !     Tracers
       allocate(tr_el(ntracers,nvrt,nea2),tr_nd0(ntracers,nvrt,npa),tr_nd(ntracers,nvrt,npa),stat=istat)
-      allocate(tr_el_tmp(nvrt,ntracers,ne_global),tr_nd0_tmp(nvrt,ntracers,np_global),tr_nd_tmp(nvrt,ntracers,np_global),stat=istat)
+      allocate(tr_el_tmp(ntracers,nvrt,ne_global),tr_nd0_tmp(ntracers,nvrt,np_global),tr_nd_tmp(ntracers,nvrt,np_global),stat=istat)
       if(istat/=0) call parallel_abort('INIT: other allocation failure')
       allocate(trnd_nu1(ntracers,nvrt,npa),trnd_nu2(ntracers,nvrt,npa),trnd_nu(ntracers,nvrt,npa),stat=itmp)
       if(itmp/=0) call parallel_abort('INIT: alloc failed (56)')
@@ -5446,7 +5446,7 @@
         endif
 
 
-        call mpi_bcast(tr_el_tmp,nvrt*ntracers*ne_global,rtype,0,comm,istat)
+        call mpi_bcast(tr_el_tmp,ntracers*nvrt*ne_global,rtype,0,comm,istat)
 
         do i=1,ne_global
           if(iegl(i)%rank==myrank) then
@@ -5543,7 +5543,7 @@
           if(j/=NF90_NOERR) call parallel_abort('init: nc tr_nd2')
         endif
 
-          call mpi_bcast(tr_nd_tmp,nvrt*ntracers*np_global,rtype,0,comm,istat)
+          call mpi_bcast(tr_nd_tmp,ntracers*nvrt*np_global,rtype,0,comm,istat)
 
         do i=1,np_global
           if(ipgl(i)%rank==myrank) then
@@ -5565,7 +5565,7 @@
           if(j/=NF90_NOERR) call parallel_abort('init: nc tr_nd0b')
         endif
 
-         call mpi_bcast(tr_nd0_tmp,nvrt*ntracers*np_global,rtype,0,comm,istat)
+         call mpi_bcast(tr_nd0_tmp,ntracers*nvrt*np_global,rtype,0,comm,istat)
 
         do i=1,np_global
           if(ipgl(i)%rank==myrank) then
